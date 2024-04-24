@@ -1,6 +1,7 @@
 import { defineConfig } from 'vitest/config';
 import { VitePluginNode } from 'vite-plugin-node';
 import tsconfigPaths from 'vite-tsconfig-paths';
+import swc from 'unplugin-swc';
 
 export default defineConfig({
   test: {
@@ -14,13 +15,24 @@ export default defineConfig({
   server: {
     port: 3000,
   },
+  resolve: {
+    alias: {
+      '@src': './src',
+      '@test': './test',
+    },
+  },
+
   plugins: [
+    swc.vite({
+      // Explicitly set the module type to avoid inheriting this value from a `.swcrc` config file
+      module: { type: 'es6' },
+    }),
     tsconfigPaths(),
     ...VitePluginNode({
       adapter: 'nest',
       appPath: './src/main.ts',
       exportName: 'viteNodeApp',
-      tsCompiler: 'esbuild',
+      tsCompiler: 'swc',
     }),
   ],
   optimizeDeps: {
